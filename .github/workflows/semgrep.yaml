@@ -52,10 +52,11 @@ jobs:
               message: `${result.check_id}: ${result.extra.message}`,
             }));
             
-            github.rest.checks.create({
-              ...github.context.repo,
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               name: 'Semgrep Analysis',
-              head_sha: github.context.sha,
+              head_sha: context.sha,
               status: 'completed',
               conclusion: 'neutral',
               output: {
