@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - 'releases/*'
   pull_request:
     branches:
       - master
@@ -51,6 +52,9 @@ jobs:
               annotation_level: 'warning',
               message: `${result.check_id}: ${result.extra.message}`,
             }));
+            
+            const { GitHub, context } = require('@actions/github');
+            const github = new GitHub(process.env.GITHUB_TOKEN);
             
             await github.rest.checks.create({
               owner: context.repo.owner,
