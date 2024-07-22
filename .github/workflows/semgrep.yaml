@@ -27,7 +27,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install semgrep
-
       - name: Run Semgrep
         run: semgrep --config "p/ci" --json > semgrep_report.json
 
@@ -53,7 +52,6 @@ jobs:
               annotation_level: 'warning',
               message: `${result.check_id}: ${result.extra.message}`,
             }));
-
             if (annotations.length > 0) {
               // Create a check run
               await github.rest.checks.create({
@@ -69,20 +67,10 @@ jobs:
                   annotations: annotations.slice(0, 50), 
                 },
               });
-            } 
-            else{
-              await github.rest.checks.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                name: 'Semgrep Analysis',
-                head_sha: context.sha,
-                status: 'completed',
-                conclusion: 'neutral',
-                output: {
-                  title: 'Semgrep Analysis Results',
-                  summary: `Found zero issue(s).`,
-                },
-              });
+              // Fail the workflow
+              throw new Error(`Semgrep found ${annotations.length} issue(s). Failing the workflow.`);
+            } else {
+              console.log('No issues found by Semgrep.');
             }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
