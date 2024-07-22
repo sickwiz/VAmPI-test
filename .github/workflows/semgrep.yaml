@@ -27,7 +27,10 @@ jobs:
           pip install semgrep
 
       - name: Run Semgrep
-        run: semgrep --config "p/ci"
+        run: semgrep --config "p/ci" --json > semgrep_report.json
+
+      - name: Ensure Semgrep Report Exists
+        run: test -f semgrep_report.json
 
       - name: Upload Semgrep results
         uses: actions/upload-artifact@v2
