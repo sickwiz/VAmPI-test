@@ -70,5 +70,19 @@ jobs:
                 },
               });
             } 
+            else{
+              await github.rest.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'Semgrep Analysis',
+                head_sha: context.sha,
+                status: 'completed',
+                conclusion: 'neutral',
+                output: {
+                  title: 'Semgrep Analysis Results',
+                  summary: `Found zero issue(s).`,
+                },
+              });
+            }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
