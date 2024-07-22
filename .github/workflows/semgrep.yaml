@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - master
-      - 'releases/*'
+      - semgrep-test
   pull_request:
     branches:
-      - master
+      - semgrep-test
 
 jobs:
   semgrep:
