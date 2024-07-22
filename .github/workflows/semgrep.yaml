@@ -1,0 +1,63 @@
+name: Semgrep Analysis
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+
+      - name: Run Semgrep
+        run: semgrep --config "p/ci"
+
+      - name: Upload Semgrep results
+        uses: actions/upload-artifact@v2
+        with:
+          name: semgrep-results
+          path: semgrep_report.json
+
+      - name: Create a Check Run with Semgrep results
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const fs = require('fs');
+            const semgrepReport = fs.readFileSync('semgrep_report.json', 'utf8');
+            const annotations = JSON.parse(semgrepReport).results.map(result => ({
+              path: result.path,
+              start_line: result.start.line,
+              end_line: result.end.line,
+              annotation_level: 'warning',
+              message: `${result.check_id}: ${result.extra.message}`,
+            }));
+            
+            github.rest.checks.create({
+              ...github.context.repo,
+              name: 'Semgrep Analysis',
+              head_sha: github.context.sha,
+              status: 'completed',
+              conclusion: 'neutral',
+              output: {
+                title: 'Semgrep Analysis Results',
+                summary: `Found ${annotations.length} issue(s).`,
+                annotations,
+              },
+            });
