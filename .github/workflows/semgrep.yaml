@@ -39,32 +39,3 @@ jobs:
           name: semgrep-results
           path: semgrep_report.json
 
-      - name: Create a Check Run with Semgrep results
-        uses: actions/github-script@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          script: |
-            const fs = require('fs');
-            const semgrepReport = fs.readFileSync('semgrep_report.json', 'utf8');
-            const annotations = JSON.parse(semgrepReport).results.map(result => ({
-              path: result.path,
-              start_line: result.start.line,
-              end_line: result.end.line,
-              annotation_level: 'warning',
-              message: `${result.check_id}: ${result.extra.message}`,
-            }));
-            
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Semgrep Analysis',
-              head_sha: context.sha,
-              status: 'completed',
-              conclusion: 'neutral',
-              output: {
-                title: 'Semgrep Analysis Results',
-                summary: `Found ${annotations.length} issue(s).`,
-                annotations,
-              },
-            });
