@@ -41,6 +41,8 @@ jobs:
 
       - name: Create a Check Run with Semgrep results
         uses: actions/github-script@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
             const fs = require('fs');
@@ -52,8 +54,6 @@ jobs:
               annotation_level: 'warning',
               message: `${result.check_id}: ${result.extra.message}`,
             }));
-            
-            const github = new GitHub(process.env.GITHUB_TOKEN);
             
             await github.rest.checks.create({
               owner: context.repo.owner,
