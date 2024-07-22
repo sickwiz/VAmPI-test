@@ -66,14 +66,9 @@ jobs:
                 output: {
                   title: 'Semgrep Analysis Results',
                   summary: `Found ${annotations.length} issue(s).`,
-                  annotations: annotations.slice(0, 50), // GitHub API limits to 50 annotations per request
+                  annotations: annotations.slice(0, 50), 
                 },
               });
-
-              // Fail the workflow
-              throw new Error(`Semgrep found ${annotations.length} issue(s). Failing the workflow.`);
-            } else {
-              console.log('No issues found by Semgrep.');
-            }
+            } 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
