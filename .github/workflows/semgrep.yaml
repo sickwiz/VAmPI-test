@@ -53,9 +53,6 @@ jobs:
               message: `${result.check_id}: ${result.extra.message}`,
             }));
             
-            const { GitHub, context } = require('@actions/github');
-            const github = new GitHub(process.env.GITHUB_TOKEN);
-            
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
